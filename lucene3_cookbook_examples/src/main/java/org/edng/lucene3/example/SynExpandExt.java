@@ -1,4 +1,4 @@
-package org.edng.lucene.example;
+package org.edng.lucene3.example;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more

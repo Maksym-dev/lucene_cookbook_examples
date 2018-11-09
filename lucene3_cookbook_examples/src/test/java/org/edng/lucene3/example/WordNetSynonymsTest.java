@@ -1,4 +1,4 @@
-package org.edng.lucene.example;
+package org.edng.lucene3.example;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.search.IndexSearcher;
