@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -21,7 +21,7 @@ import org.apache.lucene.search.similarities.LambdaTTF;
 import org.apache.lucene.search.similarities.NormalizationH1;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/24/15.
@@ -65,7 +65,7 @@ public class IBSimilaryTest {
             doc = indexReader.document(scoreDoc.doc);
             System.out.println(scoreDoc.score + ": " + doc.getField("content").stringValue());
             if (scoreDoc.equals(topDocs.scoreDocs[0])) {
-                assertEquals("Score on rank 1 result doesn't match", 2.0f, scoreDoc.score, 0.1);
+                assertEquals(2.0f, scoreDoc.score, 0.1, "Score on rank 1 result doesn't match");
             }
         }
     }

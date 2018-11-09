@@ -1,7 +1,7 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -32,7 +32,7 @@ import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -84,11 +84,10 @@ public class ComparatorTest {
             String s = new String(doc.getField(nameFieldNameSorted).binaryValue().bytes);
             System.out.println(scoreDoc.score + ": " + s);
             if (i == 0) {
-                assertEquals("Position 0 should be 'echo' but gotten '" + s + "' instead", "echo", s);
+                assertEquals("echo", s, "Position 0 should be 'echo' but gotten '" + s + "' instead");
             }
             if (i == 5) {
-                assertTrue("Position 5 should be 'charlie' or 'foxtrot' but gotten '" + s + "' instead", s.equals(
-                    "charlie") || s.equals("foxtrot"));
+                assertTrue(s.equals("charlie") || s.equals("foxtrot"), "Position 5 should be 'charlie' or 'foxtrot' but gotten '" + s + "' instead");
             }
             i++;
         }

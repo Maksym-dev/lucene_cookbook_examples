@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -22,7 +22,7 @@ import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/30/15.
@@ -67,7 +67,7 @@ public class SortTest {
             BytesRef bytesRef = doc.getField(nameFieldNameSorted).binaryValue();
             String s = new String(bytesRef.bytes);
             if (scoreDoc.equals(topDocs.scoreDocs[0])) {
-                assertEquals("Rank 1 result not match", "alpha", s);
+                assertEquals("alpha", s, "Rank 1 result not match");
             }
             System.out.println(scoreDoc.score + ": " + s);
         }

@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -18,7 +18,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/22/15.
@@ -59,7 +59,7 @@ public class BM25SimilarityTest {
 
         TopDocs topDocs = indexSearcher.search(query, 100);
 
-        assertEquals("Number of hits not matching", 3, topDocs.totalHits, 0);
+        assertEquals(3, topDocs.totalHits, 0.01, "Number of hits not matching");
 
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexReader.document(scoreDoc.doc);

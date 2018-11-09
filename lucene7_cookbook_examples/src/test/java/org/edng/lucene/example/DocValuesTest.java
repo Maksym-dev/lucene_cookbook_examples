@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -17,7 +17,7 @@ import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 12/23/14.
@@ -54,11 +54,11 @@ public class DocValuesTest {
         for (LeafReaderContext context : reader.leaves()) {
             LeafReader atomicReader = context.reader();
             SortedDocValues sortedDocValues = DocValues.getSorted(atomicReader, "sorted_string");
-            assertEquals("Count should be 2", 2, sortedDocValues.getValueCount());
+            assertEquals(2, sortedDocValues.getValueCount(), "Count should be 2");
             System.out.println("Value count: " + sortedDocValues.getValueCount());
-            assertEquals("doc 0 sorted_string not match", "hello", sortedDocValues.lookupOrd(0).utf8ToString());
+            assertEquals("hello", sortedDocValues.lookupOrd(0).utf8ToString(), "doc 0 sorted_string not match");
             System.out.println("doc 0 sorted_string: " + sortedDocValues.lookupOrd(0).utf8ToString());
-            assertEquals("doc 1 sorted_string not match", "world", sortedDocValues.lookupOrd(1).utf8ToString());
+            assertEquals("world", sortedDocValues.lookupOrd(1).utf8ToString(), "doc 1 sorted_string not match");
             System.out.println("doc 1 sorted_string: " + sortedDocValues.lookupOrd(1).utf8ToString());
         }
 

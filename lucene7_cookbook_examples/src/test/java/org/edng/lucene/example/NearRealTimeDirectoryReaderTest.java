@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -17,7 +17,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -63,7 +63,7 @@ public class NearRealTimeDirectoryReaderTest {
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexSearcher.doc(scoreDoc.doc);
             if (scoreDoc.equals(topDocs.scoreDocs[0])) {
-                assertEquals("Rank 1 score not match", 1.1433706283569336, scoreDoc.score, 0.1);
+                assertEquals(1.1433706283569336, scoreDoc.score, 0.1, "Rank 1 score not match");
             }
             System.out.println(scoreDoc.score + ": " + doc.getField("content").stringValue());
         }

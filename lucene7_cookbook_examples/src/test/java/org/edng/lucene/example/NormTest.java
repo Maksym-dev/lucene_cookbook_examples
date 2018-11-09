@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -19,7 +19,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 12/24/14.
@@ -58,7 +58,7 @@ public class NormTest {
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexReader.document(scoreDoc.doc);
             if (scoreDoc.equals(topDocs.scoreDocs[0])) {
-                assertEquals("Rank 1 not match", "Mary Smith", doc.getField("name").stringValue());
+                assertEquals("Mary Smith", doc.getField("name").stringValue(), "Rank 1 not match");
             }
             System.out.println(doc.getField("name").stringValue());
         }

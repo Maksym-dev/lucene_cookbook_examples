@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -20,7 +20,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public class CollectorTest {
         CollectorTest.MyCollector collector = new CollectorTest.MyCollector();
         indexSearcher.search(query, collector);
 
-        assertEquals("Total should be 3", 3, collector.getTotalHits());
+        assertEquals(3, collector.getTotalHits(), "Total should be 3");
 
         System.out.println(collector.getTotalHits());
 

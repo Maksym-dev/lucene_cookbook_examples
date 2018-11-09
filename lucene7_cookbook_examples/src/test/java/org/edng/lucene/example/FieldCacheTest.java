@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -16,7 +16,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/30/15.
@@ -58,22 +58,22 @@ public class FieldCacheTest {
             System.out.println(i + ": " + bytesRef.utf8ToString());
             switch (i) {
                 case 0:
-                    assertEquals("Result doesn't match on position " + i, "alpha", bytesRef.utf8ToString());
+                    assertEquals("alpha", bytesRef.utf8ToString(), "Result doesn't match on position " + i);
                     break;
                 case 1:
-                    assertEquals("Result doesn't match on position " + i, "bravo", bytesRef.utf8ToString());
+                    assertEquals("bravo", bytesRef.utf8ToString(), "Result doesn't match on position " + i);
                     break;
                 case 2:
-                    assertEquals("Result doesn't match on position " + i, "charlie", bytesRef.utf8ToString());
+                    assertEquals("charlie", bytesRef.utf8ToString(), "Result doesn't match on position " + i);
                     break;
                 case 3:
-                    assertEquals("Result doesn't match on position " + i, "delta", bytesRef.utf8ToString());
+                    assertEquals("delta", bytesRef.utf8ToString(), "Result doesn't match on position " + i);
                     break;
                 case 4:
-                    assertEquals("Result doesn't match on position " + i, "echo", bytesRef.utf8ToString());
+                    assertEquals("echo", bytesRef.utf8ToString(), "Result doesn't match on position " + i);
                     break;
                 case 5:
-                    assertEquals("Result doesn't match on position " + i, "foxtrot", bytesRef.utf8ToString());
+                    assertEquals("foxtrot", bytesRef.utf8ToString(), "Result doesn't match on position " + i);
                     break;
             }
         }

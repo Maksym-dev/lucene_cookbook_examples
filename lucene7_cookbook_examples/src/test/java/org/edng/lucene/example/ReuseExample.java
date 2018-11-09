@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -13,7 +13,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 12/24/14.
@@ -45,13 +45,13 @@ public class ReuseExample {
             doc = reader.document(i);
             switch (i) {
                 case 0:
-                    assertEquals("Rank " + (i + 1) + " not match", "John", doc.getField("name").stringValue());
+                    assertEquals("John", doc.getField("name").stringValue(), "Rank " + (i + 1) + " not match");
                     break;
                 case 1:
-                    assertEquals("Rank " + (i + 1) + " not match", "Mary", doc.getField("name").stringValue());
+                    assertEquals("Mary", doc.getField("name").stringValue(), "Rank " + (i + 1) + " not match");
                     break;
                 case 2:
-                    assertEquals("Rank " + (i + 1) + " not match", "Peter", doc.getField("name").stringValue());
+                    assertEquals("Peter", doc.getField("name").stringValue(), "Rank " + (i + 1) + " not match");
                     break;
             }
             System.out.println("DocId: " + i + ", name: " + doc.getField("name").stringValue());

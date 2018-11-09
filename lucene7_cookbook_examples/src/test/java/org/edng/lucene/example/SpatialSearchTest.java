@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -19,7 +19,7 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 
@@ -67,7 +67,7 @@ public class SpatialSearchTest {
         System.out.println("Total hits: " + topDocs.totalHits);
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexReader.document(scoreDoc.doc);
-            assertEquals("Score not match", 1.0, scoreDoc.score, 0.1);
+            assertEquals(1.0, scoreDoc.score, 0.1, "Score not match");
             System.out.println(scoreDoc.score + ": " + doc.getField("name").stringValue());
         }
     }

@@ -19,8 +19,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
+        <junit.jupiter.version>5.3.0</junit.jupiter.version>
         <httpclient.version>4.3.6</httpclient.version>
         <commons-io.version>2.4</commons-io.version>
+        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -42,6 +44,22 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -55,6 +73,11 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                     </configuration>
+                </plugin>
+                <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

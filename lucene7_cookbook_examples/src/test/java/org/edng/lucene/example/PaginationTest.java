@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -17,7 +17,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/30/15.
@@ -60,7 +60,7 @@ public class PaginationTest {
 
         while (true) {
 
-            assertTrue("Page number not match, got page " + page, page >= 1 && page <= 2);
+            assertTrue(page >= 1 && page <= 2, "Page number not match, got page " + page);
 
             System.out.println("Page " + page);
 

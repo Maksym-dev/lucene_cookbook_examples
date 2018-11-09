@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -14,7 +14,7 @@ import org.apache.lucene.index.NoDeletionPolicy;
 import org.apache.lucene.index.SnapshotDeletionPolicy;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class IndexDeletionPolicyTest2 {
         indexWriter.close();
 
         List<IndexCommit> commits = DirectoryReader.listCommits(directory);
-        assertEquals("Commits count doesn't match", 2, commits.size());
+        assertEquals(2, commits.size(), "Commits count doesn't match");
         System.out.println("Commits count: " + commits.size());
 
         for (IndexCommit commit : commits) {
@@ -63,7 +63,7 @@ public class IndexDeletionPolicyTest2 {
         }
 
         System.out.println("");
-        assertEquals("Snapshots count doesn't match", 2, policy.getSnapshotCount());
+        assertEquals(2, policy.getSnapshotCount(), "Snapshots count doesn't match");
         System.out.println("Snapshots count: " + policy.getSnapshotCount());
 
         List<IndexCommit> snapshots = policy.getSnapshots();
@@ -77,7 +77,7 @@ public class IndexDeletionPolicyTest2 {
         policy.release(lastSnapshot);
 
         System.out.println("");
-        assertEquals("Snapshots count doesn't match", 1, policy.getSnapshotCount());
+        assertEquals(1, policy.getSnapshotCount(), "Snapshots count doesn't match");
         System.out.println("Snapshots count: " + policy.getSnapshotCount());
     }
 }

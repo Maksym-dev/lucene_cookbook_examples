@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -22,7 +22,7 @@ import org.apache.lucene.search.grouping.TopGroups;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,9 +79,9 @@ public class GroupingSinglePassTest {
         TopGroups topGroups = groupingSearch.search(indexSearcher, new MatchAllDocsQuery(), 0, 10);
 
         int totalGroupCount = topGroups.groups.length;
-        assertEquals("Total group count not match", 2, totalGroupCount);
+        assertEquals(2, totalGroupCount, "Total group count not match");
         System.out.println("Total group count: " + totalGroupCount);
-        assertEquals("Total group hit count not match", 3, topGroups.totalGroupedHitCount);
+        assertEquals(3, topGroups.totalGroupedHitCount, "Total group hit count not match");
         System.out.println("Total group hit count: " + topGroups.totalGroupedHitCount);
 
         for (GroupDocs groupDocs : topGroups.groups) {

@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -21,7 +21,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NRTCachingDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -77,7 +77,7 @@ public class NearRealTimeTest {
         Query query = queryParser.parse("humpty dumpty");
 
         TopDocs topDocs = indexSearcher.search(query, 100);
-        assertEquals("Result doesn't match", 3, topDocs.scoreDocs.length);
+        assertEquals(3, topDocs.scoreDocs.length, "Result doesn't match");
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexSearcher.doc(scoreDoc.doc);
             System.out.println(scoreDoc.score + ": " + doc.getField("content").stringValue());
@@ -97,7 +97,7 @@ public class NearRealTimeTest {
 
         query = queryParser.parse("humpty");
         topDocs = indexSearcher.search(query, 100);
-        assertEquals("Result doesn't match", 4, topDocs.scoreDocs.length);
+        assertEquals(4, topDocs.scoreDocs.length, "Result doesn't match");
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexSearcher.doc(scoreDoc.doc);
             System.out.println(scoreDoc.score + ": " + doc.getField("content").stringValue());

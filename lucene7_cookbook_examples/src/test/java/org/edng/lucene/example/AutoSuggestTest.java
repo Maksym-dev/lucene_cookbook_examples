@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -19,7 +19,7 @@ import org.apache.lucene.search.suggest.analyzing.FreeTextSuggester;
 import org.apache.lucene.search.suggest.analyzing.FuzzySuggester;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -64,7 +64,7 @@ public class AutoSuggestTest {
 
         List<Lookup.LookupResult> lookupResultList = analyzingSuggester.lookup("humpty dum", false, 10);
 
-        assertEquals("Number of hits not matching", 2, lookupResultList.size(), 0);
+        assertEquals(2, lookupResultList.size(), 0.01, "Number of hits not matching");
 
         for (Lookup.LookupResult lookupResult : lookupResultList) {
             System.out.println(lookupResult.key + ": " + lookupResult.value);
@@ -105,7 +105,7 @@ public class AutoSuggestTest {
 
         List<Lookup.LookupResult> lookupResultList = analyzingInfixSuggester.lookup("put h", false, 10);
 
-        assertEquals("Number of hits not matching", 1, lookupResultList.size(), 0);
+        assertEquals(1, lookupResultList.size(), 0.01, "Number of hits not matching");
 
         for (Lookup.LookupResult lookupResult : lookupResultList) {
             System.out.println(lookupResult.key + ": " + lookupResult.value);
@@ -146,7 +146,7 @@ public class AutoSuggestTest {
 
         List<Lookup.LookupResult> lookupResultList = freeTextSuggester.lookup("h", false, 10);
 
-        assertEquals("Number of hits not matching", 3, lookupResultList.size(), 0);
+        assertEquals(3, lookupResultList.size(), 0.01, "Number of hits not matching");
 
         for (Lookup.LookupResult lookupResult : lookupResultList) {
             System.out.println(lookupResult.key + ": " + lookupResult.value);
@@ -187,7 +187,7 @@ public class AutoSuggestTest {
 
         List<Lookup.LookupResult> lookupResultList = fuzzySuggester.lookup("hampty", false, 10);
 
-        assertEquals("Number of hits not matching", 2, lookupResultList.size(), 0);
+        assertEquals(2, lookupResultList.size(), 0.01, "Number of hits not matching");
 
         for (Lookup.LookupResult lookupResult : lookupResultList) {
             System.out.println(lookupResult.key + ": " + lookupResult.value);

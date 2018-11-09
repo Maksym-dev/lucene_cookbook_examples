@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -35,7 +35,7 @@ import org.apache.lucene.search.vectorhighlight.FieldQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.QueryBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -87,7 +87,7 @@ public class HighlighterTest {
                 if (textFragment != null && textFragment.getScore() > 0) {
                     String fragment = textFragment.toString();
                     System.out.println(fragment);
-                    assertTrue("Result should contain strong tag <strong>Humpty</strong> but gotten \"" + textFragment + "\" instead", fragment.contains("<strong>Humpty</strong>"));
+                    assertTrue(fragment.contains("<strong>Humpty</strong>"), "Result should contain strong tag <strong>Humpty</strong> but gotten \"" + textFragment + "\" instead");
                 }
             }
         }
@@ -140,8 +140,8 @@ public class HighlighterTest {
         String[] fragmentsTitle = highlighter.highlight(fieldName, phraseQuery, topDocs);
         System.out.println(Arrays.toString(fragmentsTitle));
         for (String fragment : fragmentsTitle) {
-            assertTrue("Result should contain strong tag <b>Humpty</b> <b>Dumpty</b> but gotten \"" + fragment + "\" " +
-                "instead", fragment.contains("<b>Humpty</b> <b>Dumpty</b>"));
+            assertTrue(fragment.contains("<b>Humpty</b> <b>Dumpty</b>"), "Result should contain strong tag <b>Humpty</b> <b>Dumpty</b> but gotten \"" + fragment + "\" " +
+                "instead");
         }
     }
 
@@ -190,8 +190,8 @@ public class HighlighterTest {
         String fragmentsTitle = String.valueOf(highlighter.highlightWithoutSearcher("content", query, "Humpty Dumpty " +
             "sat on a wall", 5));
         System.out.println(fragmentsTitle);
-        assertTrue("Result should contain strong tag <strong>Humpty</strong> <strong>Dumpty</strong> but gotten \"" + fragmentsTitle + "\" " +
-            "instead", fragmentsTitle.contains("<strong>Humpty</strong> <strong>Dumpty</strong>"));
+        assertTrue(fragmentsTitle.contains("<strong>Humpty</strong> <strong>Dumpty</strong>"), "Result should contain strong tag <strong>Humpty</strong> <strong>Dumpty</strong> but gotten \"" + fragmentsTitle + "\" " +
+            "instead");
     }
 
     @Test
@@ -242,8 +242,8 @@ public class HighlighterTest {
                 fieldName, Integer.MAX_VALUE, 1);
             System.out.println(Arrays.toString(fragmentsTitle));
             for (String fragment : fragmentsTitle) {
-                assertTrue("Result should contain strong tag <b>Humpty Dumpty</b> but gotten \"" + fragment + "\" " +
-                    "instead", fragment.contains("<b>Humpty Dumpty</b>"));
+                assertTrue(fragment.contains("<b>Humpty Dumpty</b>"), "Result should contain strong tag <b>Humpty Dumpty</b> but gotten \"" + fragment + "\" " +
+                    "instead");
             }
         }
     }

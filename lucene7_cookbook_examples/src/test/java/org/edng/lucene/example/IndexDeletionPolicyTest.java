@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -13,7 +13,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.NoDeletionPolicy;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -50,9 +50,9 @@ public class IndexDeletionPolicyTest {
         for (IndexCommit commit : commits) {
             IndexReader reader = DirectoryReader.open(commit);
             if (commit.equals(commits.get(0))) {
-                assertEquals("Commit 1 number of docs doesn't match", 1, reader.numDocs());
+                assertEquals(1, reader.numDocs(), "Commit 1 number of docs doesn't match");
             } else if (commit.equals(commits.get(1))) {
-                assertEquals("Commit 2 number of docs doesn't match", 2, reader.numDocs());
+                assertEquals(2, reader.numDocs(),"Commit 2 number of docs doesn't match");
             }
             System.out.println("Commit " + commit.getSegmentCount());
             System.out.println("Number of docs: " + reader.numDocs());

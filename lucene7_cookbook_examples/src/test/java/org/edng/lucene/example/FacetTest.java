@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -25,7 +25,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 3/27/15.
@@ -71,13 +71,13 @@ public class FacetTest {
         Facets facets = new FastTaxonomyFacetCounts(directoryTaxonomyReader, facetsConfig, facetsCollector);
         FacetResult facetResult = facets.getTopChildren(10, "Category");
 
-        assertEquals("Category facet count not matched", 2, facetResult.childCount);
+        assertEquals(2, facetResult.childCount, "Category facet count not matched");
         for (LabelAndValue labelAndValue : facetResult.labelValues) {
             System.out.println(labelAndValue.label + ":" + labelAndValue.value);
         }
 
         facetResult = facets.getTopChildren(10, "Author");
-        assertEquals("Author facet count not matched", 3, facetResult.childCount);
+        assertEquals(3, facetResult.childCount, "Author facet count not matched");
         for (LabelAndValue labelAndValue : facetResult.labelValues) {
             System.out.println(labelAndValue.label + ":" + labelAndValue.value);
         }
@@ -88,13 +88,13 @@ public class FacetTest {
         DrillSideways.DrillSidewaysResult drillSidewaysResult = drillSideways.search(drillDownQuery, 10);
 
         facetResult = drillSidewaysResult.facets.getTopChildren(10, "Category");
-        assertEquals("DrillSideways category facet count not matched", 2, facetResult.childCount);
+        assertEquals(2, facetResult.childCount, "DrillSideways category facet count not matched");
         for (LabelAndValue labelAndValue : facetResult.labelValues) {
             System.out.println(labelAndValue.label + ":" + labelAndValue.value);
         }
 
         facetResult = drillSidewaysResult.facets.getTopChildren(10, "Author");
-        assertEquals("DrillSideways author facet count not matched", 2, facetResult.childCount);
+        assertEquals(2, facetResult.childCount, "DrillSideways author facet count not matched");
         for (LabelAndValue labelAndValue : facetResult.labelValues) {
             System.out.println(labelAndValue.label + ":" + labelAndValue.value);
         }

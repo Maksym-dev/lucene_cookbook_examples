@@ -1,13 +1,15 @@
 package org.edng.lucene.example;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Created by ed on 12/24/14.
  */
 public class SimilarityTest {
 
-//    @Test
-//    public void runTest() throws Exception {
-//
+    @Test
+    public void runTest() throws Exception {
+
 //        class MySimilarity extends Similarity {
 //            private Similarity sim = null;
 //            public MySimilarity(Similarity sim) {
@@ -86,5 +88,5 @@ public class SimilarityTest {
 //            assertEquals("Result not match", "Peter Smith", doc.getField("name").stringValue());
 //            System.out.println(doc.getField("name").stringValue());
 //        }
-//    }
+    }
 }

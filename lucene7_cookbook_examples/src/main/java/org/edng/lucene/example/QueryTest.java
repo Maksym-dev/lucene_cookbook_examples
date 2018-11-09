@@ -27,7 +27,7 @@ import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 import java.util.TimeZone;
@@ -208,6 +208,7 @@ public class QueryTest {
 
         queryParser.setAllowLeadingWildcard(true);
 //        queryParser.setAnalyzeRangeTerms(true);
+        queryParser.setSplitOnWhitespace(true);
         queryParser.setAutoGeneratePhraseQueries(true);
         queryParser.setDateResolution(null);
         queryParser.setDefaultOperator(QueryParser.Operator.AND);

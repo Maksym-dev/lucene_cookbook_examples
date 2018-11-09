@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -19,7 +19,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/8/15.
@@ -66,7 +66,7 @@ public class AnagramQueryTest {
         AnagramQuery query = new AnagramQuery(new TermQuery(new Term("content", "silent")), "content");
         TopDocs topDocs = indexSearcher.search(query, 100);
 
-        assertEquals("Total hits not matching", 2, topDocs.totalHits, 0);
+        assertEquals(2, topDocs.totalHits, 0.01, "Total hits not matching");
 
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexReader.document(scoreDoc.doc);

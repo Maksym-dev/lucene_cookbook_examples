@@ -1,6 +1,6 @@
 package org.edng.lucene.example;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -18,7 +18,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.LMJelinekMercerSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ed on 1/22/15.
@@ -62,7 +62,7 @@ public class LMDirichletSimilarityTest {
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             doc = indexReader.document(scoreDoc.doc);
             if (scoreDoc.equals(topDocs.scoreDocs[0])) {
-                assertEquals("Rank 1 score not match", 9.59, scoreDoc.score, 0.1);
+                assertEquals(9.59, scoreDoc.score, 0.1, "Rank 1 score not match");
             }
             System.out.println(scoreDoc.score + ": " + doc.getField("content").stringValue());
         }
