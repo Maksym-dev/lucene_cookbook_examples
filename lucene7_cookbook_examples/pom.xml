@@ -14,7 +14,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <lucene7.version>7.1.0</lucene7.version>
+        <lucene7.version>7.5.0</lucene7.version>
     </properties>
 
     <dependencies>
@@ -22,6 +22,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
 
         <dependency>
