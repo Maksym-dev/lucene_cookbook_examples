@@ -1,0 +1,10 @@
+diabetes, diabetes mellitus, dm
+breast cancer,cancer of the breast,breast tumor,cancer of breast
+blue,dark blue
+blue ash height,fraxinus quadrangulata height
+red,ruby
+ruby,red wine
+black,dark
+yellow baloon,sunny color
+Black,Charcoal
+Yellow Baloon,Orange
