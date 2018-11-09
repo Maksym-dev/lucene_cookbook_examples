@@ -11,6 +11,7 @@
 
     <modules>
         <module>lucene7_cookbook_examples</module>
+        <module>lucene4_cookbook_examples</module>
         <module>lucene3_cookbook_examples</module>
     </modules>
 
