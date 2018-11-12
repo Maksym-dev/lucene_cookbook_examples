@@ -1,4 +1,5 @@
 diabetes, diabetes mellitus, dm
+demographics domain, dm, demographics
 breast cancer,cancer of the breast,breast tumor,cancer of breast
 blue,dark blue
 blue ash height,fraxinus quadrangulata height
