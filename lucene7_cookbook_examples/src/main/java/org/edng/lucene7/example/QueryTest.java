@@ -5,16 +5,22 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.spans.FieldMaskingSpanQuery;
 import org.apache.lucene.search.spans.SpanFirstQuery;
@@ -39,7 +45,6 @@ public class QueryTest {
 
     @Test
     public void runTest() throws Exception {
-
         Analyzer analyzer = new StandardAnalyzer();
         Directory directory = new RAMDirectory();
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
@@ -47,38 +52,44 @@ public class QueryTest {
         Document doc = new Document();
         FieldType textFieldType = new FieldType();
         textFieldType.setTokenized(true);
+        textFieldType.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
         textFieldType.setStored(true);
         textFieldType.setStoreTermVectors(true);
         StringField stringField = new StringField("name", "", Field.Store.YES);
         Field textField = new Field("content", "", textFieldType);
-//        IntField intField = new IntField("num", 0, Field.Store.YES);
-//
-//        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
-//        stringField.setStringValue("First");
-//        textField.setStringValue("Humpty Dumpty sat on a wall,");
-//        intField.setIntValue(100);
-//        doc.add(stringField); doc.add(textField); doc.add(intField);
-//        indexWriter.addDocument(doc);
-//
-//        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
-//        stringField.setStringValue("Second");
-//        textField.setStringValue("Humpty Dumpty had a great fall.");
-//        intField.setIntValue(200);
-//        doc.add(stringField); doc.add(textField); doc.add(intField);
-//        indexWriter.addDocument(doc);
-//
-//        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
-//        stringField.setStringValue("Third");
-//        textField.setStringValue("All the king's horses and all the king's men");
-//        intField.setIntValue(300);
-//        doc.add(stringField); doc.add(textField); doc.add(intField);
-//        indexWriter.addDocument(doc);
-//
-//        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
-//        stringField.setStringValue("Fourth");
-//        textField.setStringValue("Couldn't put Humpty together again.");
-//        intField.setIntValue(400);
-//        doc.add(stringField); doc.add(textField); doc.add(intField);
+        IntPoint intField = new IntPoint("num", 0);
+        StoredField intStoredField = new StoredField("num", 0);
+
+        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
+        stringField.setStringValue("First");
+        textField.setStringValue("Humpty Dumpty sat on a wall,");
+        intField.setIntValue(100);
+        intStoredField.setIntValue(100);
+        doc.add(stringField); doc.add(textField); doc.add(intField); doc.add(intStoredField);
+        indexWriter.addDocument(doc);
+
+        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
+        stringField.setStringValue("Second");
+        textField.setStringValue("Humpty Dumpty had a great fall.");
+        intField.setIntValue(200);
+        intStoredField.setIntValue(200);
+        doc.add(stringField); doc.add(textField); doc.add(intField); doc.add(intStoredField);
+        indexWriter.addDocument(doc);
+
+        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
+        stringField.setStringValue("Third");
+        textField.setStringValue("All the king's horses and all the king's men");
+        intField.setIntValue(300);
+        intStoredField.setIntValue(300);
+        doc.add(stringField); doc.add(textField); doc.add(intField); doc.add(intStoredField);
+        indexWriter.addDocument(doc);
+
+        doc.removeField("name"); doc.removeField("content"); doc.removeField("num");
+        stringField.setStringValue("Fourth");
+        textField.setStringValue("Couldn't put Humpty together again.");
+        intField.setIntValue(400);
+        intStoredField.setIntValue(400);
+        doc.add(stringField); doc.add(textField); doc.add(intField); doc.add(intStoredField);
         indexWriter.addDocument(doc);
 
         indexWriter.commit();
@@ -88,12 +99,12 @@ public class QueryTest {
         IndexSearcher indexSearcher = new IndexSearcher(indexReader);
         QueryParser queryParser = new QueryParser("content", analyzer);
         // configure queryParser here
-        //Query query = queryParser.parse("(humpty AND dumpty) OR wall NOT sat");
-        //Query query = queryParser.parse("hum*pty*");
+//        Query query = queryParser.parse("(humpty AND dumpty) OR wall NOT sat");
+//        Query query = queryParser.parse("hum*pty*");
 
-        //FuzzyQuery query = new FuzzyQuery(new Term("content", "humpXX"));
+//        FuzzyQuery query = new FuzzyQuery(new Term("content", "humpXX"));
 
-        //Query query = NumericRangeQuery.newIntRange("num", 0, 200, true, true);
+        Query query = IntPoint.newRangeQuery("num", 0, 200);
 
         //Query query = queryParser.parse("(name:First | name:Fourth | content:dumpty)~0.1");
 
@@ -123,7 +134,7 @@ public class QueryTest {
         );
 
         WildcardQuery wildcard = new WildcardQuery(new Term("content", "hum*"));
-        SpanQuery query5 = new SpanMultiTermQueryWrapper<WildcardQuery>(wildcard);
+        SpanQuery query5 = new SpanMultiTermQueryWrapper<>(wildcard);
 
         SpanQuery q1  = new SpanTermQuery(new Term("content", "dumpty"));
         SpanQuery q2  = new SpanTermQuery(new Term("content2", "humpty"));
@@ -190,24 +201,24 @@ public class QueryTest {
         //System.out.println(query2.getClass().getSimpleName());
         //System.out.println(query2);
 
-//        System.out.println(query.getClass().getSimpleName());
-//        System.out.println(query);
-//        TopDocs topDocs = indexSearcher.search(query, 100);
-//
-//        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-//            doc = indexReader.document(scoreDoc.doc);
-//            System.out.println("name: " +
-//                    doc.getField("name").stringValue() +
-//                    " - content: " +
-//                    doc.getField("content").stringValue() +
-//                    " - num: " +
-//                    doc.getField("num").stringValue());
-//        }
+        System.out.println(query.getClass().getSimpleName());
+        System.out.println(query);
+        TopDocs topDocs = indexSearcher.search(query, 100);
+
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+            doc = indexReader.document(scoreDoc.doc);
+            IndexableField numField = doc.getField("num");
+            String numOutput = " - num: " + (numField == null ? "" : numField.stringValue());
+            System.out.println("name: " +
+                doc.getField("name").stringValue() +
+                " - content: " +
+                doc.getField("content").stringValue() +
+                numOutput);
+        }
 
         indexReader.close();
 
         queryParser.setAllowLeadingWildcard(true);
-//        queryParser.setAnalyzeRangeTerms(true);
         queryParser.setSplitOnWhitespace(true);
         queryParser.setAutoGeneratePhraseQueries(true);
         queryParser.setDateResolution(null);
@@ -216,7 +227,6 @@ public class QueryTest {
         queryParser.setFuzzyMinSim(1f);
         queryParser.setFuzzyPrefixLength(1);
         queryParser.setLocale(Locale.US);
-//        queryParser.setLowercaseExpandedTerms(true);
         queryParser.setMultiTermRewriteMethod(null);
         queryParser.setPhraseSlop(1);
         queryParser.setTimeZone(TimeZone.getTimeZone("America/New_York"));
