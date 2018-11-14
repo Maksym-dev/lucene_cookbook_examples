@@ -1,5 +1,6 @@
 package org.edng.lucene7.example;
 
+import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.synonym.SolrSynonymParser;
@@ -11,18 +12,25 @@ import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
 import org.apache.lucene.queryparser.flexible.standard.config.StandardQueryConfigHandler;
 import org.apache.lucene.queryparser.simple.SimpleQueryParser;
 import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.spans.SpanNearQuery;
+import org.apache.lucene.search.spans.SpanOrQuery;
+import org.apache.lucene.search.spans.SpanQuery;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.text.ParseException;
+import java.util.Iterator;
 
 public class QueryExpandWithSynonymsTest {
 
+    private static SynonymsAnalyzer synonymsAnalyzer;
     private String[] queries = {
         "breast cancer",
         "breast cancer some text",
@@ -43,88 +51,164 @@ public class QueryExpandWithSynonymsTest {
         "title:\"breast cancer\"",
         "title:(breast cancer)",
         "title:(breast cancer) OR abstract:dm",
-        "dm",
+        "diabetes dm",
         ".dm"
     };
 
-    @Test
-    public void testExpandByComplexPhraseQueryParser() throws Throwable {
+    @BeforeAll
+    static void setUp() throws IOException, ParseException {
         SynonymMap mySynonymMap;
-        mySynonymMap = buildSynonym(getClass().getClassLoader().getResourceAsStream("\\synonyms.txt"));
-        SynonymsAnalyzer synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
+        mySynonymMap = buildSynonym(QueryExpandWithSynonymsTest.class.getClassLoader().getResourceAsStream(
+            "\\synonyms.txt"));
+        synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
+    }
 
-        ComplexPhraseQueryParser phraseQueryParser = new ComplexPhraseQueryParser("", synonymsAnalyzer);
-        phraseQueryParser.setDefaultOperator(QueryParser.Operator.AND);
-        phraseQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
-        phraseQueryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
-        for (String input : queries) {
-            Query parsedQuery = phraseQueryParser.parse(input.trim());
-            System.out.println(parsedQuery);
-        }
+    private static SynonymMap buildSynonym(InputStream stream) throws IOException, java.text.ParseException {
+        SolrSynonymParser parser = new SolrSynonymParser(true, true, new StandardAnalyzer(CharArraySet.EMPTY_SET));
+        parser.parse(new InputStreamReader(stream));
+        return parser.build();
     }
 
     @Test
     public void testExpandByQueryParser() throws Throwable {
-        SynonymMap mySynonymMap;
-        mySynonymMap = buildSynonym(getClass().getClassLoader().getResourceAsStream("\\synonyms.txt"));
-        SynonymsAnalyzer synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
 
         QueryParser queryParser = new QueryParser("", synonymsAnalyzer);
         queryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         queryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
         for (String input : queries) {
-            Query parsedQuery = queryParser.parse(input.trim());
-            System.out.println(parsedQuery);
+            String trim = input.trim();
+            Query parsedQuery = queryParser.parse(trim);
+            System.out.println(input.trim() + " => " + parsedQuery);
         }
     }
 
     @Test
     public void testExpandByMultiFieldQueryParser() throws Throwable {
-        SynonymMap mySynonymMap;
-        mySynonymMap = buildSynonym(getClass().getClassLoader().getResourceAsStream("\\synonyms.txt"));
-        SynonymsAnalyzer synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
 
         MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(new String[]{""}, synonymsAnalyzer);
         multiFieldQueryParser.setSplitOnWhitespace(false);
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
-        multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.AND);
+        multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
         for (String input : queries) {
             Query parsedQuery = multiFieldQueryParser.parse(input.trim());
-            System.out.println(parsedQuery);
+            System.out.println(input.trim() + " => " + postProcess(parsedQuery).trim());
+        }
+    }
+
+    private String postProcess(Query parsedQuery) {
+        if (parsedQuery instanceof BooleanQuery) {
+            StringBuilder buffer = new StringBuilder();
+            BooleanQuery booleanQuery = (BooleanQuery) parsedQuery;
+            Iterator<BooleanClause> iterator = booleanQuery.clauses().iterator();
+            while (iterator.hasNext()) {
+                BooleanClause booleanClause = iterator.next();
+                Query query = booleanClause.getQuery();
+                if (query instanceof SpanOrQuery) {
+                    buffer.append(toStringSpanOrQuery((SpanOrQuery) query));
+                } else {
+                    buffer.append(postProcess(query));
+                }
+                if (iterator.hasNext()) {
+                    String str = resolveBoolOccur(booleanClause.getOccur());
+                    buffer.append(str);
+                }
+            }
+            return buffer.toString();
+        } else if (parsedQuery instanceof SpanOrQuery) {
+            return toStringSpanOrQuery((SpanOrQuery) parsedQuery);
+        } else if (parsedQuery instanceof BoostQuery) {
+            BoostQuery boostQuery = (BoostQuery) parsedQuery;
+            Query query = boostQuery.getQuery();
+            String str = postProcess(query);
+            return toStringBoostQuery(str, boostQuery.getBoost());
+        }
+        return parsedQuery.toString();
+    }
+
+    private String toStringBoostQuery(String str, float boost) {
+        return "(" + str + ")" + "^" + boost;
+    }
+
+    private String resolveBoolOccur(BooleanClause.Occur occur) {
+        switch (occur) {
+            case SHOULD:
+                return " OR ";
+            case MUST:
+                return " AND ";
+            case MUST_NOT:
+                return " NOT ";
+        }
+        return "";
+    }
+
+    private String toStringSpanOrQuery(SpanOrQuery spanOrQuery) {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("(");
+        Iterator<SpanQuery> i = Lists.newArrayList(spanOrQuery.getClauses()).iterator();
+        while (i.hasNext()) {
+            SpanQuery clause = i.next();
+            if (clause instanceof SpanNearQuery) {
+                buffer.append(toStringSpanNearQuery((SpanNearQuery) clause));
+            } else {
+
+                buffer.append(clause.toString());
+            }
+            if (i.hasNext()) {
+                buffer.append(" OR ");
+            }
+        }
+        buffer.append(")");
+        return buffer.toString();
+    }
+
+    private String toStringSpanNearQuery(SpanNearQuery spanNearQuery) {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("\"");
+        Iterator<SpanQuery> i = Lists.newArrayList(spanNearQuery.getClauses()).iterator();
+        while (i.hasNext()) {
+            SpanQuery clause = i.next();
+            buffer.append(clause.toString());
+            if (i.hasNext()) {
+                buffer.append(" ");
+            }
+        }
+        buffer.append("\"");
+        return buffer.toString();
+    }
+
+    @Test
+    public void testExpandByComplexPhraseQueryParser() throws Throwable {
+
+        ComplexPhraseQueryParser phraseQueryParser = new ComplexPhraseQueryParser("", synonymsAnalyzer);
+        phraseQueryParser.setSplitOnWhitespace(false);
+        phraseQueryParser.setDefaultOperator(QueryParser.Operator.AND);
+        phraseQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
+        phraseQueryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        for (String input : queries) {
+            Query parsedQuery = phraseQueryParser.parse(input.trim());
+            System.out.println(input.trim() + " => " + parsedQuery);
         }
     }
 
     @Test
-    public void testExpandBySimpleQueryParser() throws Throwable {
-        SynonymMap mySynonymMap;
-        mySynonymMap = buildSynonym(getClass().getClassLoader().getResourceAsStream("\\synonyms.txt"));
-        SynonymsAnalyzer synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
+    public void testExpandBySimpleQueryParser() {
         SimpleQueryParser simpleQueryParser = new SimpleQueryParser(synonymsAnalyzer, "");
         simpleQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         simpleQueryParser.setDefaultOperator(BooleanClause.Occur.SHOULD);
         for (String input : queries) {
             Query parsedQuery = simpleQueryParser.parse(input.trim());
-            System.out.println(parsedQuery);
+            System.out.println(input.trim() + " => " + parsedQuery);
         }
     }
 
     @Test
     public void testExpandByStandardQueryParser() throws Throwable {
-        SynonymMap mySynonymMap;
-        mySynonymMap = buildSynonym(getClass().getClassLoader().getResourceAsStream("\\synonyms.txt"));
-        SynonymsAnalyzer synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
 
         StandardQueryParser standardQueryParser = new StandardQueryParser(synonymsAnalyzer);
         standardQueryParser.setDefaultOperator(StandardQueryConfigHandler.Operator.AND);
         for (String input : queries) {
             Query parsedQuery = standardQueryParser.parse(input.trim(), "");
-            System.out.println(parsedQuery);
+            System.out.println(input.trim() + " => " + parsedQuery);
         }
-    }
-
-    private SynonymMap buildSynonym(InputStream stream) throws IOException, java.text.ParseException {
-        SolrSynonymParser parser = new SolrSynonymParser(true, true, new StandardAnalyzer(CharArraySet.EMPTY_SET));
-        parser.parse(new InputStreamReader(stream));
-        return parser.build();
     }
 }
