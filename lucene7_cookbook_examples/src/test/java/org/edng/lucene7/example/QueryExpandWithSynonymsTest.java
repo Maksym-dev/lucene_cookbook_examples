@@ -2,6 +2,7 @@ package org.edng.lucene7.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.synonym.SolrSynonymParser;
@@ -38,7 +39,9 @@ public class QueryExpandWithSynonymsTest {
     private static final String AND_OPERATOR = " AND ";
     private static final String OR_PRERATOR = " OR ";
     private static final String NOT_OPERATOR = " NOT ";
+
     private static SynonymsAnalyzer synonymsAnalyzer;
+
     private String[] queries = {
         "breast cancer",
         "breast cancer some text",
@@ -80,12 +83,26 @@ public class QueryExpandWithSynonymsTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/expand-queries.csv")
-    public void testExpandByMultiFieldQueryParser(String input, String expected) throws Throwable {
+    public void testExpandByMultiFieldQueryParserWithDefaultOrOperator(String input, String expected) throws Throwable {
 
         MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(new String[]{""}, synonymsAnalyzer);
         multiFieldQueryParser.setSplitOnWhitespace(false);
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
+        Query parsedQuery = multiFieldQueryParser.parse(input.trim());
+        String actual = postProcess(parsedQuery).trim();
+        System.out.println(input.trim() + " => " + actual);
+        assertEquals(expected, actual, "Query does not equals as expected query");
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/expand-queries-second.csv")
+    public void testExpandByMultiFieldQueryParserWithDefaultAndOperator(String input, String expected) throws Throwable {
+
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(new String[]{""}, synonymsAnalyzer);
+        multiFieldQueryParser.setSplitOnWhitespace(false);
+        multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
+        multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.AND);
         Query parsedQuery = multiFieldQueryParser.parse(input.trim());
         String actual = postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
@@ -171,17 +188,29 @@ public class QueryExpandWithSynonymsTest {
 
     private String toStringSpanNearQuery(SpanNearQuery spanNearQuery) {
         StringBuilder buffer = new StringBuilder();
+        String field = getFieldFromSpanNearQuery(spanNearQuery);
+        if (StringUtils.isNotEmpty(field)) {
+            buffer.append(field).append(":");
+        }
         buffer.append("\"");
         Iterator<SpanQuery> i = Arrays.asList(spanNearQuery.getClauses()).iterator();
         while (i.hasNext()) {
             SpanQuery clause = i.next();
-            buffer.append(clause.toString());
+            if (StringUtils.isNotEmpty(field)) {
+                buffer.append(clause.toString(field));
+            } else {
+                buffer.append(clause.toString());
+            }
             if (i.hasNext()) {
                 buffer.append(" ");
             }
         }
         buffer.append("\"");
         return buffer.toString();
+    }
+
+    private String getFieldFromSpanNearQuery(SpanNearQuery spanNearQuery) {
+        return spanNearQuery.getField();
     }
 
     @Test
