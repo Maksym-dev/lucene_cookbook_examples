@@ -1,0 +1,24 @@
+breast cancer,"""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"""
+breast AND cancer,breast AND cancer
+breast cancer some text,"""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"" OR some OR text"
+"""breast cancer""","(""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"")"
+"""breast cancer"" some text","(""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"") OR some OR text"
+"""breast cancer"" AND some text","(""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"") AND some OR text"
+breast cancer AND some text,breast OR cancer AND some OR text
+tex* AND (breast cancer),"tex* AND (""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"")"
+breast cancer AND (some text),breast OR cancer AND some OR text
+(breast cancer) AND (some text),"""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"" AND some OR text"
+breast cancer OR some text,breast OR cancer OR some OR text
+breast cancer OR (some text),breast OR cancer OR some OR text
+(breast cancer) OR (some text),"""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"" OR some OR text"
+bre?st cancer,bre?st OR cancer
+breast c*ncer,breast OR c*ncer
+breast^1.4 cancer,(breast)^1.4 OR cancer
+(breast cancer)^1.4,"(""cancer of the breast"" OR ""breast tumor"" OR ""cancer of breast"" OR ""breast cancer"")^1.4"
+breast cancer~0.8,breast OR cancer~1
+"title:""breast cancer""","(title:""cancer of the breast"" OR title:""breast tumor"" OR title:""cancer of breast"" OR title:""breast cancer"")"
+title:(breast cancer),"title:""cancer of the breast"" OR title:""breast tumor"" OR title:""cancer of breast"" OR title:""breast cancer"""
+title:(breast cancer) OR abstract:dm,"title:""cancer of the breast"" OR title:""breast tumor"" OR title:""cancer of breast"" OR title:""breast cancer"" OR abstract:diabetes OR abstract:""diabetes mellitus"" OR abstract:""demographics domain"" OR abstract:demographics OR abstract:dm"
+title:(breast cancer) AND abstract:dm,"title:""cancer of the breast"" OR title:""breast tumor"" OR title:""cancer of breast"" OR title:""breast cancer"" OR abstract:diabetes OR abstract:""diabetes mellitus"" AND (abstract:""demographics domain"" OR abstract:demographics OR abstract:dm)"
+diabetes dm,"""diabetes mellitus"" OR dm OR diabetes OR diabetes OR ""diabetes mellitus"" OR ""demographics domain"" OR demographics OR dm"
+.dm,"diabetes OR ""diabetes mellitus"" OR ""demographics domain"" OR demographics OR dm"

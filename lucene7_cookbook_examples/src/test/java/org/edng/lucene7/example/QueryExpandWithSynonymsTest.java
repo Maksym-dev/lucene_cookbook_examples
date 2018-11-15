@@ -1,6 +1,7 @@
 package org.edng.lucene7.example;
 
-import com.google.common.collect.Lists;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.synonym.SolrSynonymParser;
@@ -21,15 +22,22 @@ import org.apache.lucene.search.spans.SpanOrQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 public class QueryExpandWithSynonymsTest {
 
+    private static final String AND_OPERATOR = " AND ";
+    private static final String OR_PRERATOR = " OR ";
+    private static final String NOT_OPERATOR = " NOT ";
     private static SynonymsAnalyzer synonymsAnalyzer;
     private String[] queries = {
         "breast cancer",
@@ -37,6 +45,7 @@ public class QueryExpandWithSynonymsTest {
         "\"breast cancer\"",
         "\"breast cancer\" some text",
         "breast cancer AND some text",
+        "tex* AND (breast cancer)",
         "breast cancer AND (some text)",
         "(breast cancer) AND (some text)",
         "breast cancer OR some text",
@@ -69,37 +78,25 @@ public class QueryExpandWithSynonymsTest {
         return parser.build();
     }
 
-    @Test
-    public void testExpandByQueryParser() throws Throwable {
-
-        QueryParser queryParser = new QueryParser("", synonymsAnalyzer);
-        queryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
-        queryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
-        for (String input : queries) {
-            String trim = input.trim();
-            Query parsedQuery = queryParser.parse(trim);
-            System.out.println(input.trim() + " => " + parsedQuery);
-        }
-    }
-
-    @Test
-    public void testExpandByMultiFieldQueryParser() throws Throwable {
+    @ParameterizedTest
+    @CsvFileSource(resources = "/expand-queries.csv")
+    public void testExpandByMultiFieldQueryParser(String input, String expected) throws Throwable {
 
         MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(new String[]{""}, synonymsAnalyzer);
         multiFieldQueryParser.setSplitOnWhitespace(false);
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
-        for (String input : queries) {
-            Query parsedQuery = multiFieldQueryParser.parse(input.trim());
-            System.out.println(input.trim() + " => " + postProcess(parsedQuery).trim());
-        }
+        Query parsedQuery = multiFieldQueryParser.parse(input.trim());
+        String actual = postProcess(parsedQuery).trim();
+        System.out.println(input.trim() + " => " + actual);
+        assertEquals(expected, actual, "Query does not equals as expected query");
     }
 
     private String postProcess(Query parsedQuery) {
         if (parsedQuery instanceof BooleanQuery) {
             StringBuilder buffer = new StringBuilder();
             BooleanQuery booleanQuery = (BooleanQuery) parsedQuery;
-            Iterator<BooleanClause> iterator = booleanQuery.clauses().iterator();
+            ListIterator<BooleanClause> iterator = booleanQuery.clauses().listIterator();
             while (iterator.hasNext()) {
                 BooleanClause booleanClause = iterator.next();
                 Query query = booleanClause.getQuery();
@@ -110,7 +107,18 @@ public class QueryExpandWithSynonymsTest {
                 }
                 if (iterator.hasNext()) {
                     String str = resolveBoolOccur(booleanClause.getOccur());
-                    buffer.append(str);
+                    BooleanClause next = iterator.next();
+                    if (!iterator.hasNext()) {
+                        String strNext = resolveBoolOccur(next.getOccur());
+                        if (!str.equalsIgnoreCase(strNext)) {
+                            buffer.append(strNext);
+                        } else {
+                            buffer.append(str);
+                        }
+                    } else {
+                        buffer.append(str);
+                    }
+                    iterator.previous();
                 }
             }
             return buffer.toString();
@@ -132,11 +140,11 @@ public class QueryExpandWithSynonymsTest {
     private String resolveBoolOccur(BooleanClause.Occur occur) {
         switch (occur) {
             case SHOULD:
-                return " OR ";
+                return OR_PRERATOR;
             case MUST:
-                return " AND ";
+                return AND_OPERATOR;
             case MUST_NOT:
-                return " NOT ";
+                return NOT_OPERATOR;
         }
         return "";
     }
@@ -144,7 +152,7 @@ public class QueryExpandWithSynonymsTest {
     private String toStringSpanOrQuery(SpanOrQuery spanOrQuery) {
         StringBuilder buffer = new StringBuilder();
         buffer.append("(");
-        Iterator<SpanQuery> i = Lists.newArrayList(spanOrQuery.getClauses()).iterator();
+        Iterator<SpanQuery> i = Arrays.asList(spanOrQuery.getClauses()).iterator();
         while (i.hasNext()) {
             SpanQuery clause = i.next();
             if (clause instanceof SpanNearQuery) {
@@ -154,7 +162,7 @@ public class QueryExpandWithSynonymsTest {
                 buffer.append(clause.toString());
             }
             if (i.hasNext()) {
-                buffer.append(" OR ");
+                buffer.append(OR_PRERATOR);
             }
         }
         buffer.append(")");
@@ -164,7 +172,7 @@ public class QueryExpandWithSynonymsTest {
     private String toStringSpanNearQuery(SpanNearQuery spanNearQuery) {
         StringBuilder buffer = new StringBuilder();
         buffer.append("\"");
-        Iterator<SpanQuery> i = Lists.newArrayList(spanNearQuery.getClauses()).iterator();
+        Iterator<SpanQuery> i = Arrays.asList(spanNearQuery.getClauses()).iterator();
         while (i.hasNext()) {
             SpanQuery clause = i.next();
             buffer.append(clause.toString());
@@ -174,6 +182,19 @@ public class QueryExpandWithSynonymsTest {
         }
         buffer.append("\"");
         return buffer.toString();
+    }
+
+    @Test
+    public void testExpandByQueryParser() throws Throwable {
+
+        QueryParser queryParser = new QueryParser("", synonymsAnalyzer);
+        queryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
+        queryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
+        for (String input : queries) {
+            String trim = input.trim();
+            Query parsedQuery = queryParser.parse(trim);
+            System.out.println(input.trim() + " => " + parsedQuery);
+        }
     }
 
     @Test
