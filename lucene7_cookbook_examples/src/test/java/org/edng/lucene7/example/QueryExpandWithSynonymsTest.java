@@ -13,12 +13,8 @@ import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
 import org.apache.lucene.queryparser.flexible.standard.config.StandardQueryConfigHandler;
 import org.apache.lucene.queryparser.simple.SimpleQueryParser;
 import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SynonymQuery;
-import org.apache.lucene.search.spans.SpanOrQuery;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,15 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.util.ListIterator;
 
 public class QueryExpandWithSynonymsTest {
 
-    private static final String AND_OPERATOR = " AND ";
-    private static final String OR_OPERATOR = " OR ";
-    private static final String NOT_OPERATOR = " NOT ";
-
     private static SynonymsAnalyzer synonymsAnalyzer;
+
+    private LuceneQuerySynonymExpandPostProcessor expandPostProcessor = new LuceneQuerySynonymExpandPostProcessor();
 
     private String[] queries = {
         "breast cancer",
@@ -88,7 +81,7 @@ public class QueryExpandWithSynonymsTest {
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
         Query parsedQuery = multiFieldQueryParser.parse(input.trim());
-        String actual = postProcess(parsedQuery).trim();
+        String actual = expandPostProcessor.postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
         assertEquals(expected, actual, "Query does not equals as expected query");
     }
@@ -102,7 +95,7 @@ public class QueryExpandWithSynonymsTest {
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
         Query parsedQuery = multiFieldQueryParser.parse(input.trim());
-        String actual = postProcess(parsedQuery).trim();
+        String actual = expandPostProcessor.postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
     }
 
@@ -115,7 +108,7 @@ public class QueryExpandWithSynonymsTest {
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.AND);
         Query parsedQuery = multiFieldQueryParser.parse(input.trim());
-        String actual = postProcess(parsedQuery).trim();
+        String actual = expandPostProcessor.postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
         assertEquals(expected, actual, "Query does not equals as expected query");
     }
@@ -128,79 +121,8 @@ public class QueryExpandWithSynonymsTest {
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.AND);
         Query parsedQuery = multiFieldQueryParser.parse(input.trim());
-        String actual = postProcess(parsedQuery).trim();
+        String actual = expandPostProcessor.postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
-    }
-
-    private String postProcess(Query parsedQuery) {
-        if (parsedQuery instanceof BooleanQuery) {
-            StringBuilder buffer = new StringBuilder();
-            BooleanQuery booleanQuery = (BooleanQuery) parsedQuery;
-            int clausesCount = booleanQuery.clauses().size();
-            ListIterator<BooleanClause> iterator = booleanQuery.clauses().listIterator();
-            while (iterator.hasNext()) {
-                BooleanClause booleanClause = iterator.next();
-                Query query = booleanClause.getQuery();
-                if (query instanceof SpanOrQuery) {
-                    buffer.append(LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) query, OR_OPERATOR));
-                } else {
-                    boolean shouldBeWrapped = isShouldBeWrapped(clausesCount, query);
-                    if (shouldBeWrapped) {
-                        buffer.append("(");
-                    }
-                    buffer.append(postProcess(query));
-                    if (shouldBeWrapped) {
-                        buffer.append(")");
-                    }
-                }
-                if (iterator.hasNext()) {
-                    String str = resolveBoolOccur(booleanClause.getOccur());
-                    BooleanClause next = iterator.next();
-                    if (!iterator.hasNext()) {
-                        String strNext = resolveBoolOccur(next.getOccur());
-                        if (!str.equalsIgnoreCase(strNext)) {
-                            buffer.append(strNext);
-                        } else {
-                            buffer.append(str);
-                        }
-                    } else {
-                        buffer.append(str);
-                    }
-                    iterator.previous();
-                }
-            }
-            return buffer.toString();
-        } else if (parsedQuery instanceof SpanOrQuery) {
-            return LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) parsedQuery, OR_OPERATOR);
-        } else if (parsedQuery instanceof BoostQuery) {
-            BoostQuery boostQuery = (BoostQuery) parsedQuery;
-            Query query = boostQuery.getQuery();
-            String str = postProcess(query);
-            return LuceneQueryToStringHelper.toStringBoostQuery(str, boostQuery.getBoost());
-        } else if (parsedQuery instanceof SynonymQuery) {
-            SynonymQuery synonymQuery = (SynonymQuery) parsedQuery;
-            return LuceneQueryToStringHelper.toStringSynonymQuery(synonymQuery, OR_OPERATOR);
-        }
-        return parsedQuery.toString();
-    }
-
-    private boolean isShouldBeWrapped(int clausesCount, Query query) {
-        return query instanceof BooleanQuery &&
-            (query.toString().contains(" ") &&
-                !query.toString().contains("+") &&
-                clausesCount > 1);
-    }
-
-    private String resolveBoolOccur(BooleanClause.Occur occur) {
-        switch (occur) {
-            case SHOULD:
-                return OR_OPERATOR;
-            case MUST:
-                return AND_OPERATOR;
-            case MUST_NOT:
-                return NOT_OPERATOR;
-        }
-        return "";
     }
 
     @ParameterizedTest
@@ -234,7 +156,7 @@ public class QueryExpandWithSynonymsTest {
         phraseQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         phraseQueryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
         Query parsedQuery = phraseQueryParser.parse(input.trim());
-        String actual = postProcess(parsedQuery).trim();
+        String actual = expandPostProcessor.postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
         assertEquals(expected, actual, "Query does not equals as expected query");
     }
