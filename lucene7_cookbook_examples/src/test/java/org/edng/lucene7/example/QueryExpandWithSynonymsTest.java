@@ -69,10 +69,12 @@ public class QueryExpandWithSynonymsTest {
 
     @BeforeAll
     static void setUp() throws IOException, ParseException {
+        long start = System.currentTimeMillis();
         SynonymMap mySynonymMap;
         mySynonymMap = buildSynonym(QueryExpandWithSynonymsTest.class.getClassLoader().getResourceAsStream(
             "\\synonyms.txt"));
         synonymsAnalyzer = new SynonymsAnalyzer(mySynonymMap);
+        System.out.println("Time to load synonyms " + (System.currentTimeMillis() - start) + " ms" + System.lineSeparator());
     }
 
     private static SynonymMap buildSynonym(InputStream stream) throws IOException, java.text.ParseException {
