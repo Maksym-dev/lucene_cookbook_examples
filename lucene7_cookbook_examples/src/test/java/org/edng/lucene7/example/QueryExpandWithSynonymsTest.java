@@ -88,7 +88,7 @@ public class QueryExpandWithSynonymsTest {
     @CsvFileSource(resources = "/expand-queries.csv")
     public void testExpandByMultiFieldQueryParserWithDefaultOrOperator(String input, String expected) throws Throwable {
 
-        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(new String[]{""}, synonymsAnalyzer);
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParserExt(new String[]{""}, synonymsAnalyzer);
         multiFieldQueryParser.setSplitOnWhitespace(false);
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
@@ -115,7 +115,7 @@ public class QueryExpandWithSynonymsTest {
     @CsvFileSource(resources = "/expand-queries-second.csv")
     public void testExpandByMultiFieldQueryParserWithDefaultAndOperator(String input, String expected) throws Throwable {
 
-        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(new String[]{""}, synonymsAnalyzer);
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParserExt(new String[]{""}, synonymsAnalyzer);
         multiFieldQueryParser.setSplitOnWhitespace(false);
         multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.AND);
