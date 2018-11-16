@@ -97,6 +97,19 @@ public class QueryExpandWithSynonymsTest {
         assertEquals(expected, actual, "Query does not equals as expected query");
     }
 
+    @Test
+    public void testSimpleExpandByMultiFieldQueryParserWithDefaultOrOperator() throws Throwable {
+//        String input = "\"dm\"~4";
+        String input = "\"breast cancer\"~8 AND \"dm\"~4";
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParserExt(new String[]{""}, synonymsAnalyzer);
+        multiFieldQueryParser.setSplitOnWhitespace(false);
+        multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
+        multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.OR);
+        Query parsedQuery = multiFieldQueryParser.parse(input.trim());
+        String actual = postProcess(parsedQuery).trim();
+        System.out.println(input.trim() + " => " + actual);
+    }
+
     @ParameterizedTest
     @CsvFileSource(resources = "/expand-queries-second.csv")
     public void testExpandByMultiFieldQueryParserWithDefaultAndOperator(String input, String expected) throws Throwable {
@@ -109,6 +122,18 @@ public class QueryExpandWithSynonymsTest {
         String actual = postProcess(parsedQuery).trim();
         System.out.println(input.trim() + " => " + actual);
         assertEquals(expected, actual, "Query does not equals as expected query");
+    }
+
+    @Test
+    public void testSimpleExpandByMultiFieldQueryParserWithDefaultAndOperator() throws Throwable {
+        String input = "\"breast cancer\"~8 AND (\"dm\"~4 OR ruby)";
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParserExt(new String[]{""}, synonymsAnalyzer);
+        multiFieldQueryParser.setSplitOnWhitespace(false);
+        multiFieldQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
+        multiFieldQueryParser.setDefaultOperator(QueryParser.Operator.AND);
+        Query parsedQuery = multiFieldQueryParser.parse(input.trim());
+        String actual = postProcess(parsedQuery).trim();
+        System.out.println(input.trim() + " => " + actual);
     }
 
     private String postProcess(Query parsedQuery) {
