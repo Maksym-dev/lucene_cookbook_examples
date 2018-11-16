@@ -18,6 +18,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SynonymQuery;
 import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanOrQuery;
 import org.apache.lucene.search.spans.SpanQuery;
@@ -140,6 +141,7 @@ public class QueryExpandWithSynonymsTest {
         if (parsedQuery instanceof BooleanQuery) {
             StringBuilder buffer = new StringBuilder();
             BooleanQuery booleanQuery = (BooleanQuery) parsedQuery;
+            int clausesCount = booleanQuery.clauses().size();
             ListIterator<BooleanClause> iterator = booleanQuery.clauses().listIterator();
             while (iterator.hasNext()) {
                 BooleanClause booleanClause = iterator.next();
@@ -147,7 +149,14 @@ public class QueryExpandWithSynonymsTest {
                 if (query instanceof SpanOrQuery) {
                     buffer.append(toStringSpanOrQuery((SpanOrQuery) query));
                 } else {
+                    boolean shouldBeWrapped = isShouldBeWrapped(clausesCount, query);
+                    if (shouldBeWrapped) {
+                        buffer.append("(");
+                    }
                     buffer.append(postProcess(query));
+                    if (shouldBeWrapped) {
+                        buffer.append(")");
+                    }
                 }
                 if (iterator.hasNext()) {
                     String str = resolveBoolOccur(booleanClause.getOccur());
@@ -173,8 +182,18 @@ public class QueryExpandWithSynonymsTest {
             Query query = boostQuery.getQuery();
             String str = postProcess(query);
             return toStringBoostQuery(str, boostQuery.getBoost());
+        } else if (parsedQuery instanceof SynonymQuery) {
+            SynonymQuery synonymQuery = (SynonymQuery) parsedQuery;
+            return LuceneQueryToStringHelper.toStringSynonymQuery(synonymQuery, OR_PRERATOR);
         }
         return parsedQuery.toString();
+    }
+
+    private boolean isShouldBeWrapped(int clausesCount, Query query) {
+        return query instanceof BooleanQuery &&
+            (query.toString().contains(" ") &&
+                !query.toString().contains("+") &&
+                clausesCount > 1);
     }
 
     private String toStringBoostQuery(String str, float boost) {
@@ -195,12 +214,11 @@ public class QueryExpandWithSynonymsTest {
 
     private String toStringSpanOrQuery(SpanOrQuery spanOrQuery) {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("(");
         Iterator<SpanQuery> i = Arrays.asList(spanOrQuery.getClauses()).iterator();
         while (i.hasNext()) {
             SpanQuery clause = i.next();
             if (clause instanceof SpanNearQuery) {
-                buffer.append(toStringSpanNearQuery((SpanNearQuery) clause));
+                buffer.append(LuceneQueryToStringHelper.toStringSpanNearQuery((SpanNearQuery) clause));
             } else {
 
                 buffer.append(clause.toString());
@@ -209,35 +227,7 @@ public class QueryExpandWithSynonymsTest {
                 buffer.append(OR_PRERATOR);
             }
         }
-        buffer.append(")");
         return buffer.toString();
-    }
-
-    private String toStringSpanNearQuery(SpanNearQuery spanNearQuery) {
-        StringBuilder buffer = new StringBuilder();
-        String field = getFieldFromSpanNearQuery(spanNearQuery);
-        if (StringUtils.isNotEmpty(field)) {
-            buffer.append(field).append(":");
-        }
-        buffer.append("\"");
-        Iterator<SpanQuery> i = Arrays.asList(spanNearQuery.getClauses()).iterator();
-        while (i.hasNext()) {
-            SpanQuery clause = i.next();
-            if (StringUtils.isNotEmpty(field)) {
-                buffer.append(clause.toString(field));
-            } else {
-                buffer.append(clause.toString());
-            }
-            if (i.hasNext()) {
-                buffer.append(" ");
-            }
-        }
-        buffer.append("\"");
-        return buffer.toString();
-    }
-
-    private String getFieldFromSpanNearQuery(SpanNearQuery spanNearQuery) {
-        return spanNearQuery.getField();
     }
 
     @Test
