@@ -69,4 +69,8 @@ public class LuceneQueryToStringHelper {
         builder.append(")");
         return builder.toString();
     }
+
+    public static String toStringBoostQuery(String str, float boost) {
+        return "(" + str + ")" + "^" + boost;
+    }
 }

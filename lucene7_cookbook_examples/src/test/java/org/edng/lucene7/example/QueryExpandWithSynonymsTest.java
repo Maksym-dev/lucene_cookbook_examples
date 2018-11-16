@@ -176,7 +176,7 @@ public class QueryExpandWithSynonymsTest {
             BoostQuery boostQuery = (BoostQuery) parsedQuery;
             Query query = boostQuery.getQuery();
             String str = postProcess(query);
-            return toStringBoostQuery(str, boostQuery.getBoost());
+            return LuceneQueryToStringHelper.toStringBoostQuery(str, boostQuery.getBoost());
         } else if (parsedQuery instanceof SynonymQuery) {
             SynonymQuery synonymQuery = (SynonymQuery) parsedQuery;
             return LuceneQueryToStringHelper.toStringSynonymQuery(synonymQuery, OR_OPERATOR);
@@ -189,10 +189,6 @@ public class QueryExpandWithSynonymsTest {
             (query.toString().contains(" ") &&
                 !query.toString().contains("+") &&
                 clausesCount > 1);
-    }
-
-    private String toStringBoostQuery(String str, float boost) {
-        return "(" + str + ")" + "^" + boost;
     }
 
     private String resolveBoolOccur(BooleanClause.Occur occur) {
