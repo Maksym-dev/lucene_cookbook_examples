@@ -6,6 +6,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SynonymQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.spans.SpanNearQuery;
+import org.apache.lucene.search.spans.SpanOrQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 
 import java.util.Arrays;
@@ -13,6 +14,24 @@ import java.util.Iterator;
 import java.util.List;
 
 public class LuceneQueryToStringHelper {
+
+    public static String toStringSpanOrQuery(SpanOrQuery spanOrQuery, String operator) {
+        StringBuilder buffer = new StringBuilder();
+        Iterator<SpanQuery> i = Arrays.asList(spanOrQuery.getClauses()).iterator();
+        while (i.hasNext()) {
+            SpanQuery clause = i.next();
+            if (clause instanceof SpanNearQuery) {
+                buffer.append(LuceneQueryToStringHelper.toStringSpanNearQuery((SpanNearQuery) clause));
+            } else {
+
+                buffer.append(clause.toString());
+            }
+            if (i.hasNext()) {
+                buffer.append(operator);
+            }
+        }
+        return buffer.toString();
+    }
 
     public static String toStringSpanNearQuery(SpanNearQuery spanNearQuery) {
         StringBuilder buffer = new StringBuilder();

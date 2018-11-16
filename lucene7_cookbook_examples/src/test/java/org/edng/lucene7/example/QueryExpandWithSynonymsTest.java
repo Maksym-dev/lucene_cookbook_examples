@@ -19,9 +19,7 @@ import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SynonymQuery;
-import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanOrQuery;
-import org.apache.lucene.search.spans.SpanQuery;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,8 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.ListIterator;
 
 public class QueryExpandWithSynonymsTest {
@@ -147,7 +143,7 @@ public class QueryExpandWithSynonymsTest {
                 BooleanClause booleanClause = iterator.next();
                 Query query = booleanClause.getQuery();
                 if (query instanceof SpanOrQuery) {
-                    buffer.append(toStringSpanOrQuery((SpanOrQuery) query));
+                    buffer.append(LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) query, OR_PRERATOR));
                 } else {
                     boolean shouldBeWrapped = isShouldBeWrapped(clausesCount, query);
                     if (shouldBeWrapped) {
@@ -176,7 +172,7 @@ public class QueryExpandWithSynonymsTest {
             }
             return buffer.toString();
         } else if (parsedQuery instanceof SpanOrQuery) {
-            return toStringSpanOrQuery((SpanOrQuery) parsedQuery);
+            return LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) parsedQuery, OR_PRERATOR);
         } else if (parsedQuery instanceof BoostQuery) {
             BoostQuery boostQuery = (BoostQuery) parsedQuery;
             Query query = boostQuery.getQuery();
@@ -210,24 +206,6 @@ public class QueryExpandWithSynonymsTest {
                 return NOT_OPERATOR;
         }
         return "";
-    }
-
-    private String toStringSpanOrQuery(SpanOrQuery spanOrQuery) {
-        StringBuilder buffer = new StringBuilder();
-        Iterator<SpanQuery> i = Arrays.asList(spanOrQuery.getClauses()).iterator();
-        while (i.hasNext()) {
-            SpanQuery clause = i.next();
-            if (clause instanceof SpanNearQuery) {
-                buffer.append(LuceneQueryToStringHelper.toStringSpanNearQuery((SpanNearQuery) clause));
-            } else {
-
-                buffer.append(clause.toString());
-            }
-            if (i.hasNext()) {
-                buffer.append(OR_PRERATOR);
-            }
-        }
-        return buffer.toString();
     }
 
     @Test
