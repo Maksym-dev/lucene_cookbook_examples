@@ -33,7 +33,7 @@ import java.util.ListIterator;
 public class QueryExpandWithSynonymsTest {
 
     private static final String AND_OPERATOR = " AND ";
-    private static final String OR_PRERATOR = " OR ";
+    private static final String OR_OPERATOR = " OR ";
     private static final String NOT_OPERATOR = " NOT ";
 
     private static SynonymsAnalyzer synonymsAnalyzer;
@@ -142,7 +142,7 @@ public class QueryExpandWithSynonymsTest {
                 BooleanClause booleanClause = iterator.next();
                 Query query = booleanClause.getQuery();
                 if (query instanceof SpanOrQuery) {
-                    buffer.append(LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) query, OR_PRERATOR));
+                    buffer.append(LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) query, OR_OPERATOR));
                 } else {
                     boolean shouldBeWrapped = isShouldBeWrapped(clausesCount, query);
                     if (shouldBeWrapped) {
@@ -171,7 +171,7 @@ public class QueryExpandWithSynonymsTest {
             }
             return buffer.toString();
         } else if (parsedQuery instanceof SpanOrQuery) {
-            return LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) parsedQuery, OR_PRERATOR);
+            return LuceneQueryToStringHelper.toStringSpanOrQuery((SpanOrQuery) parsedQuery, OR_OPERATOR);
         } else if (parsedQuery instanceof BoostQuery) {
             BoostQuery boostQuery = (BoostQuery) parsedQuery;
             Query query = boostQuery.getQuery();
@@ -179,7 +179,7 @@ public class QueryExpandWithSynonymsTest {
             return toStringBoostQuery(str, boostQuery.getBoost());
         } else if (parsedQuery instanceof SynonymQuery) {
             SynonymQuery synonymQuery = (SynonymQuery) parsedQuery;
-            return LuceneQueryToStringHelper.toStringSynonymQuery(synonymQuery, OR_PRERATOR);
+            return LuceneQueryToStringHelper.toStringSynonymQuery(synonymQuery, OR_OPERATOR);
         }
         return parsedQuery.toString();
     }
@@ -198,7 +198,7 @@ public class QueryExpandWithSynonymsTest {
     private String resolveBoolOccur(BooleanClause.Occur occur) {
         switch (occur) {
             case SHOULD:
-                return OR_PRERATOR;
+                return OR_OPERATOR;
             case MUST:
                 return AND_OPERATOR;
             case MUST_NOT:
