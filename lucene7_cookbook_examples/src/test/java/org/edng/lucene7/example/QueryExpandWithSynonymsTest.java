@@ -2,7 +2,6 @@ package org.edng.lucene7.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.synonym.SolrSynonymParser;
