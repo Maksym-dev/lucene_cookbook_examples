@@ -203,6 +203,14 @@ public class QueryExpandWithSynonymsTest {
         return "";
     }
 
+    @ParameterizedTest
+    @CsvFileSource(resources = "/expand-queries.csv")
+    public void testExpandBySynonymExpandServiceFirst(String input, String expected) throws Throwable {
+        ISynonymExpandService phraseQueryParser = new SynonymExpandServiceFirst();
+        String actual = phraseQueryParser.expand(input.trim());
+        assertEquals(expected, actual, "Query does not equals as expected query");
+    }
+
     @Test
     public void testExpandByQueryParser() throws Throwable {
 
