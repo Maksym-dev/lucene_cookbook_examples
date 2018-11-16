@@ -228,18 +228,19 @@ public class QueryExpandWithSynonymsTest {
         }
     }
 
-    @Test
-    public void testExpandByComplexPhraseQueryParser() throws Throwable {
+    @ParameterizedTest
+    @CsvFileSource(resources = "/expand-queries.csv")
+    public void testExpandByComplexPhraseQueryParser(String input, String expected) throws Throwable {
 
         ComplexPhraseQueryParser phraseQueryParser = new ComplexPhraseQueryParser("", synonymsAnalyzer);
         phraseQueryParser.setSplitOnWhitespace(false);
-        phraseQueryParser.setDefaultOperator(QueryParser.Operator.AND);
+        phraseQueryParser.setDefaultOperator(QueryParser.Operator.OR);
         phraseQueryParser.setAutoGenerateMultiTermSynonymsPhraseQuery(true);
         phraseQueryParser.setMultiTermRewriteMethod(MultiTermQuery.CONSTANT_SCORE_REWRITE);
-        for (String input : queries) {
-            Query parsedQuery = phraseQueryParser.parse(input.trim());
-            System.out.println(input.trim() + " => " + parsedQuery);
-        }
+        Query parsedQuery = phraseQueryParser.parse(input.trim());
+        String actual = postProcess(parsedQuery).trim();
+        System.out.println(input.trim() + " => " + actual);
+        assertEquals(expected, actual, "Query does not equals as expected query");
     }
 
     @Test
